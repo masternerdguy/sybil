@@ -1,25 +1,32 @@
 -module(ssh_helper).
 
--export([connect/0, new_tmux/1, exec_in_tmux/2, capture_tmux/1, exec/2]).
+-export([connect/3, open_tmux/1, exec_in_tmux/2, capture_tmux/1]).
 
-connect() ->
+%% @doc Establishes an SSH connection to the target, returning its handle.
+connect(IP, User, Password) ->
     %% open connection
-    {ok, CN} = ssh:connect("172.20.128.2", 22,
-     [{user, "dubuntu"}, {password, "secret_password"},
+    {ok, CN} = ssh:connect(IP, 22,
+     [{user, User}, {password, Password},
       {silently_accept_hosts, true}]),
     
     %% return connection
     CN.
 
-new_tmux(Connection) ->
-    ssh_helper:exec(Connection, "tmux new-session -s ollama -d").
+%% @doc Opens a tmux session using the provided connection handle.
+open_tmux(Connection) ->
+    exec(Connection, "tmux new-session -s ollama -d").
 
+%% @doc Executes a command in the open tmux session for the provided handle.
 exec_in_tmux(Connection, Command) ->
-    ssh_helper:exec(Connection, "tmux send-keys '" ++ replace_all(Command, "'", "") ++ "' Enter").
+    exec(Connection, "tmux send-keys '" ++ replace_all(Command, "'", "") ++ "' Enter").
 
+%% @doc Returns the entire history of the open tmux session for the provided handle.
 capture_tmux(Connection) ->
-    ssh_helper:exec(Connection, "tmux capture-pane -pS -").
+    exec(Connection, "tmux capture-pane -pS -").
 
+%% Internal API
+
+%% @doc Executes a raw shell command in the provided connection handle.
 exec(Connection, Command) ->
     %% get channel
     {ok, CR} = ssh_connection:session_channel(Connection, 1000),
@@ -30,8 +37,7 @@ exec(Connection, Command) ->
     %% read result
     read([]).
 
-%% Internal API
-
+%% @doc Reads the raw result buffer line by line.
 read(State) ->
     receive
         M -> 
@@ -40,6 +46,7 @@ read(State) ->
         State
     end.
 
+%% @doc Helper function to replace characters in a list.
 replace_all(String, Find, Replace) ->
     case string:find(String, Find) of
         nomatch -> String;
