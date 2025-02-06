@@ -1,9 +1,15 @@
 services:
+  dev-inspector:
+    build:
+      dockerfile: Dockerfile.devinspector
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.1
   herd-memory:
     build:
       dockerfile: Dockerfile.memory
     ports:
-      - 11434:8472
+      - 11434:11434
     env_file:
       - .env
     volumes:

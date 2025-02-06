@@ -1,0 +1,16 @@
+# stage 1
+FROM ubuntu AS base
+
+# stage 2
+FROM base as tools
+
+# install common tools
+RUN apt update
+RUN apt upgrade -y
+RUN apt install htop iotop nethogs tmux screen kakoune nano curl lynx net-tools wget inetutils-ping -y
+
+# stage 3
+FROM tools as tail
+
+# don't die
+CMD tail -f /dev/null
