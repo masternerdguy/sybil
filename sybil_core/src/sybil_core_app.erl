@@ -13,6 +13,10 @@ start(_StartType, _StartArgs) ->
     %% enable hot reloading
     sync:go(),
 
+    %% enable crypto and ssh
+    crypto:start(),
+    ssh:start(),
+
     %% complete startup
     sybil_core_sup:start_link().
 
