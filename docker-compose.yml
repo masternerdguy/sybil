@@ -1,0 +1,10 @@
+services:
+  herdmate:
+    build:
+      dockerfile: Dockerfile.herdmate
+    ports:
+      - 11434:8472
+    env_file:
+      - .env
+    volumes:
+      - ./ollama:/OLLAMA_MODELS
