@@ -1,0 +1,9 @@
+# stage 1
+FROM erlang as base
+WORKDIR /src/sybil
+
+# stage 2
+FROM base as tail
+
+# don't die
+CMD tail -f /dev/null

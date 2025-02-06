@@ -1,4 +1,14 @@
 services:
+  dev-erlang:
+    build:
+      dockerfile: Dockerfile.deverlang
+    env_file:
+      - .env
+    volumes:
+      - .:/src/sybil
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.101
   dev-inspector:
     build:
       dockerfile: Dockerfile.devinspector
