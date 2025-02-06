@@ -7,7 +7,7 @@ FROM base as tools
 # install common tools
 RUN apt update
 RUN apt upgrade -y
-RUN apt install htop iotop nethogs tmux screen kakoune nano curl lynx net-tools wget inetutils-ping -y
+RUN apt install htop iotop ssh nethogs tmux screen kakoune nano curl lynx net-tools wget inetutils-ping netcat-openbsd ncat telnet -y
 
 # stage 3
 FROM tools as tail

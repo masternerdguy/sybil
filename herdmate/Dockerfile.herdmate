@@ -1,18 +1,36 @@
 # stage 1
 FROM ubuntu AS base
-
-EXPOSE 11434
 WORKDIR /
 
 # stage 2
-FROM base as ollama
+FROM base as ssh
 
-# install ollama
-RUN apt update
-RUN apt upgrade -y
-RUN apt install screen curl -y
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# Update the system, install OpenSSH Server, and set up users
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y openssh-server curl
+
+# Create user and set password for user and root user
+RUN  useradd -rm -d /home/dubuntu -s /bin/bash -g root -G sudo -u 1001 dubuntu && \
+    echo 'dubuntu:secret_password' | chpasswd && \
+    echo 'root:secret_password' | chpasswd
+
+# Set up configuration for SSH
+RUN mkdir /var/run/sshd && \
+    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd && \
+    echo "export VISIBLE=now" >> /etc/profile
+
+# Expose the SSH port
+EXPOSE 22
 
 # stage 3
+FROM ssh as ollama
+
+# install ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# stage 4
 FROM ollama AS herdmate
-ENV OLLAMA_HOST=0.0.0.0
+
+# start 
+CMD bash -c "ollama serve & disown && sleep 10 && service ssh start && tail -f /dev/null"
