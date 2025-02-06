@@ -1,19 +1,16 @@
 # stage 1
 FROM ubuntu AS base
 
-EXPOSE 11434 8472
+EXPOSE 11434
 WORKDIR /
 
 # stage 2
 FROM base as ollama
 
-# setup model directory
-ENV OLLAMA_MODELS="/OLLAMA_MODELS"
-
 # install ollama
 RUN apt update
 RUN apt upgrade -y
-RUN apt install curl -y
+RUN apt install screen curl -y
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # stage 3

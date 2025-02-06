@@ -1,10 +1,18 @@
 services:
-  herdmate:
+  herd-memory:
     build:
-      dockerfile: Dockerfile.herdmate
+      dockerfile: Dockerfile.memory
     ports:
       - 11434:8472
     env_file:
       - .env
     volumes:
-      - ./ollama:/OLLAMA_MODELS
+      - ./ollama:/root/.ollama
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.2
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

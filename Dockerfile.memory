@@ -1,0 +1,8 @@
+# stage 1
+FROM localhost/herdmate AS base
+
+# stage 2
+FROM base as ollama
+
+# start ollama
+CMD bash -c "ollama serve & disown && sleep 10 && ollama pull samantha-mistral && tail -f /dev/null"
