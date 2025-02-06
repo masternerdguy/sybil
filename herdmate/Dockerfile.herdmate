@@ -7,7 +7,7 @@ FROM base as ssh
 
 # Update the system, install OpenSSH Server, and set up users
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y openssh-server curl
+    apt-get install -y openssh-server curl tmux
 
 # Create user and set password for user and root user
 RUN  useradd -rm -d /home/dubuntu -s /bin/bash -g root -G sudo -u 1001 dubuntu && \

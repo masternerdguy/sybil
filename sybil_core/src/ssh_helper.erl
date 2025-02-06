@@ -1,6 +1,6 @@
 -module(ssh_helper).
 
--export([connect/0, exec/2]).
+-export([connect/0, new_tmux/1, exec_in_tmux/2, capture_tmux/1, exec/2]).
 
 connect() ->
     %% open connection
@@ -10,6 +10,15 @@ connect() ->
     
     %% return connection
     CN.
+
+new_tmux(Connection) ->
+    ssh_helper:exec(Connection, "tmux new-session -s ollama -d").
+
+exec_in_tmux(Connection, Command) ->
+    ssh_helper:exec(Connection, "tmux send-keys -l '" ++ Command ++ "' Enter").
+
+capture_tmux(Connection) ->
+    ssh_helper:exec(Connection, "tmux capture-pane -pS -").
 
 exec(Connection, Command) ->
     %% get channel
