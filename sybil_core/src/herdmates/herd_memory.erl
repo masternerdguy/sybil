@@ -1,6 +1,8 @@
 -module(herd_memory).
 
--export([start/0, process_init/0]).
+-export([
+    start/0, process_init/0, dirty_read/0, clean_read/0, dirty_write/1, clean_write/1, summarize/0
+]).
 
 %% API
 
@@ -14,6 +16,26 @@ start() ->
 
     %% return handle
     herd_memory_process.
+
+%% @doc Requests a dirty read of the session.
+dirty_read() ->
+    herd_memory_process ! {self(), dirty_read}.
+
+%% @doc Requests a clean read of the session.
+clean_read() ->
+    herd_memory_process ! {self(), clean_read}.
+
+%% @doc Requests a dirty write to the session.
+dirty_write(Query) ->
+    herd_memory_process ! {self(), dirty_write, Query}.
+
+%% @doc Requests a clean write to the session.
+clean_write(Query) ->
+    herd_memory_process ! {self(), clean_write, Query}.
+
+%% @doc Requests a summarization of the session.
+summarize() ->
+    herd_memory_process ! {self(), summarize}.
 
 %% @doc Initialization process which should not be called outside its module.
 process_init() ->
@@ -75,12 +97,12 @@ process(CN) ->
 
 %% @doc Query to get a summarization in hopefully a usable format.
 summarization_query() ->
-    "please summarize this conversation with bullet points in the format *<⍝ 'one keyword'> <⍝ 'details'>".
+    "please summarize this conversation with bullet points in the format \"one keyword\"->\"details\" ".
 
 %% @doc Query to prepare the model for its summarization tasks.
 setup_query() ->
-    "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked.".
+    "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked in a specific format.".
 
 %% @doc Command to start the model.
 run_cmd() ->
-    "ollama run samantha-mistral".
+    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m".
