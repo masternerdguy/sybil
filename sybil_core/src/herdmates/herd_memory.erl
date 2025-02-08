@@ -26,7 +26,14 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
-    log_helper:write_log(?MODULE, self(), "Ready!"),
+    log_helper:write_log(?MODULE, self(), "Ready for preparation query."),
+
+    %% send preparation query
+    ssh_helper:exec_in_tmux(CN, "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked."),
+
+    %% wait for ollama to initialize
+    ssh_helper:wait_for_prompt(CN),
+    log_helper:write_log(?MODULE, self(), "Ready for use!"),
 
     %% start listening
     process(CN).
