@@ -12,8 +12,8 @@ start() ->
     register(herd_memory_process, PID).
 
 process_init() ->
-    io:fwrite("Connecting...", []),
     %% establish ssh connection
+    log_helper:write_log(?MODULE, self(), "Connecting..."),
     CN = ssh_helper:connect("172.20.128.2", "dubuntu", "secret_password"),
 
     %% initialize tmux session
@@ -24,7 +24,7 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
-    io:fwrite("Ready!", []),
+    log_helper:write_log(?MODULE, self(), "Ready!"),
 
     %% start listening
     process(CN).
@@ -51,6 +51,6 @@ process(CN) ->
             PID ! {herd_memory_process, clean_write, done};
         %% fallback
         M ->
-            io:fwrite("got ~p?", [M])
+            log_helper:write_log(?MODULE, self(), io_lib:fwrite("got unexpected message ~p", [M]))
     end,
     process(CN).
