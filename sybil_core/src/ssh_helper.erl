@@ -1,6 +1,6 @@
 -module(ssh_helper).
 
--export([connect/3, open_tmux/1, exec_in_tmux/2, capture_tmux/1]).
+-export([connect/3, open_tmux/1, exec_in_tmux/2, capture_tmux/1, wait_for_prompt/1]).
 
 %% @doc Establishes an SSH connection to the target, returning its handle.
 connect(IP, User, Password) ->
@@ -22,7 +22,31 @@ exec_in_tmux(Connection, Command) ->
 
 %% @doc Returns the entire history of the open tmux session for the provided handle.
 capture_tmux(Connection) ->
-    exec(Connection, "tmux capture-pane -pS -").
+    %% get dump from tmux
+    Dump = exec(Connection, "tmux capture-pane -pS -"),
+
+    %% return concatenated string
+    tmux_join(Dump).
+
+%% @doc Blocks until the ollama prompt is available for input.
+wait_for_prompt(Connection) ->
+    %% get tmux output
+    TX = capture_tmux(Connection),
+
+    %% reverse output
+    TXR = lists:reverse(TX),
+
+    %% get termination sequence
+    TSX = reversed_terminator(),
+
+    %% get substring of reversed output
+    SS = string:substr(TXR, 1, length(TSX)),
+
+    %% check value
+    case SS of
+        TSX -> done;
+        _ -> wait_for_prompt(Connection)
+    end.
 
 %% Internal API
 
@@ -54,3 +78,22 @@ replace_all(String, Find, Replace) ->
             X = string:replace(String, Find, Replace),
             replace_all(X, Find, Replace)
     end.
+
+%% @doc Returns the joined text from a tmux dump.
+tmux_join(Dump) ->
+    %% get rid of unwanted parts
+    LX = lists:map(fun (X) -> {_, _, Q} = X, Q end, Dump),
+
+    %% keep data parts
+    DX = lists:filter(fun (X) -> element(1, X) == data end, LX),
+
+    %% convert to trimmed strings
+    SX = lists:map(fun(X) -> {_, _, _, Q} = X, binary_to_list(Q) end, DX),
+    TX = lists:map(fun(X) -> string:trim(X) end, SX),
+
+    %% concat strings
+    lists:concat(TX).
+
+%% @doc Returns the reversed ready prompt sequence.
+reversed_terminator() ->
+    ")pleh rof ?/( egassem a dneS >>>".
