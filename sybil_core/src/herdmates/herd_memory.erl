@@ -10,7 +10,10 @@ start() ->
     PID = spawn(?MODULE, process_init, []),
 
     %% register process
-    register(herd_memory_process, PID).
+    register(herd_memory_process, PID),
+
+    %% return handle
+    herd_memory_process.
 
 %% @doc Initialization process which should not be called outside its module.
 process_init() ->
