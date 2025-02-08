@@ -24,6 +24,15 @@ services:
     networks:
       static-network:
         ipv4_address: 172.20.128.2
+  herd-feels:
+    image: localhost/herdmate
+    env_file:
+      - .env
+    volumes:
+      - ./ollama:/root/.ollama
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.3
 networks:
   static-network:
     ipam:
