@@ -4,6 +4,7 @@
 
 %% API
 
+%% @doc Starts the ollama instance and listener for this module.
 start() ->
     %% spawn process
     PID = spawn(?MODULE, process_init, []),
@@ -11,6 +12,7 @@ start() ->
     %% register process
     register(herd_memory_process, PID).
 
+%% @doc Initialization process which should not be called outside its module.
 process_init() ->
     %% establish ssh connection
     log_helper:write_log(?MODULE, self(), "Connecting..."),
@@ -31,6 +33,7 @@ process_init() ->
 
 %% Internal API
 
+%% @doc Worker process that handles incoming messages and responds to the caller.
 process(CN) ->
     catch receive
         %% perform a quick dump of the current session
