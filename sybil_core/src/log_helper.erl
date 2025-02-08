@@ -12,7 +12,7 @@ write_log(Module, PID, Message) ->
 flush_log() ->
     receive
         M -> 
-            write_log(?MODULE, self(), io_lib:fwrite("~p", [M])),
+            write_log(?MODULE, self(), io_lib:format("~p", [M])),
             flush_log()
     after 0 ->
         ok

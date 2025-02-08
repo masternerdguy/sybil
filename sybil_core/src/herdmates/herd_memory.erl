@@ -70,11 +70,11 @@ process(CN) ->
     catch receive
         %% perform a quick dump of the current session
         {PID, dirty_read} ->
-            PID ! {herd_memory_process, ssh_helper:capture_tmux(CN)};
+            PID ! {herd_memory_process, dirty_read, ssh_helper:capture_tmux(CN)};
         %% perform a clean dump of the current session when the prompt is ready
         {PID, clean_read} ->
             ssh_helper:wait_for_prompt(CN),
-            PID ! {herd_memory_process, ssh_helper:capture_tmux(CN)};
+            PID ! {herd_memory_process, clean_read, ssh_helper:capture_tmux(CN)};
         %% performs a quick write to the current session
         {PID, dirty_write, Query} ->
             ssh_helper:exec_in_tmux(CN, Query),
@@ -91,7 +91,7 @@ process(CN) ->
             PID ! {herd_memory_process, summarize, done};
         %% fallback
         M ->
-            log_helper:write_log(?MODULE, self(), io_lib:fwrite("got unexpected message ~p", [M]))
+            log_helper:write_log(?MODULE, self(), io_lib:format("got unexpected message ~p", [M]))
     end,
     process(CN).
 
