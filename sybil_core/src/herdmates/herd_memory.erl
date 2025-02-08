@@ -25,14 +25,14 @@ process_init() ->
     ssh_helper:open_tmux(CN),
 
     %% initialize ollama
-    ssh_helper:exec_in_tmux(CN, "ollama run samantha-mistral"),
+    ssh_helper:exec_in_tmux(CN, run_cmd()),
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
     log_helper:write_log(?MODULE, self(), "Ready for preparation query."),
 
     %% send preparation query
-    ssh_helper:exec_in_tmux(CN, "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked."),
+    ssh_helper:exec_in_tmux(CN, setup_query()),
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
@@ -62,8 +62,25 @@ process(CN) ->
             ssh_helper:exec_in_tmux(CN, Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_memory_process, clean_write, done};
+        %% requests a summarization of the conversation
+        {PID, summarize} ->
+            ssh_helper:exec_in_tmux(CN, summarization_query()),
+            ssh_helper:wait_for_prompt(CN),
+            PID ! {herd_memory_process, summarize, done};
         %% fallback
         M ->
             log_helper:write_log(?MODULE, self(), io_lib:fwrite("got unexpected message ~p", [M]))
     end,
     process(CN).
+
+%% @doc Query to get a summarization in hopefully a usable format.
+summarization_query() ->
+    "please summarize this conversation with bullet points in the format *<⍝ 'one keyword'> <⍝ 'details'>".
+
+%% @doc Query to prepare the model for its summarization tasks.
+setup_query() ->
+    "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked.".
+
+%% @doc Command to start the model.
+run_cmd() ->
+    "ollama run samantha-mistral".
