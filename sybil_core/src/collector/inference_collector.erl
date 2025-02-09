@@ -5,11 +5,14 @@
 %% API
 
 dispatch_query(Query) ->
+    %% get timestamp
+    DT = calendar:now_to_universal_time(os:timestamp()),
+
     %% format query
-    FQ = io_lib:format("user query: ~s", [Query]),
+    FQ = io_lib:format("[datetime: ~p] user query: ~s", [DT, Query]),
 
     %% dispatch to herd_memory
-    query_memory(io_lib:format("please provide relevant information for this user request: ~s", [FQ])),
+    query_memory(io_lib:format("please provide relevant information for this user request from known fragments: ~s", [FQ])),
 
     %% dispatch to herd_feels
     query_feels(FQ),

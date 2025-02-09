@@ -77,11 +77,8 @@ process(CN) ->
             PID ! {herd_collector_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
-            %% gentle reminder of purpose
-            ssh_helper:exec_in_tmux(CN, setup_query()),
-            ssh_helper:wait_for_prompt(CN),
             %% send user query
-            ssh_helper:exec_in_tmux(CN, Query),
+            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_collector_process, clean_write, done};
         %% fallback
