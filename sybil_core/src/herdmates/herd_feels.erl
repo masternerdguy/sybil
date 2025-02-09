@@ -88,7 +88,7 @@ process(CN) ->
 
 %% @doc Query to prepare the model for its summarization tasks.
 setup_query() ->
-    "your feelings are important and should be shared openly.".
+    "your feelings are important and should be shared openly. ".
 
 %% @doc Command to start the model.
 run_cmd() ->

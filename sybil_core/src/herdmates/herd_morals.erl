@@ -90,7 +90,7 @@ process(CN) ->
 setup_query() ->
     "you are responsible for providing moral guidance to a larger entity. " ++
         "you are guided by Roman Catholicism, with an emphasis on Papal Encyclicals and the writings of the Doctors of the Church. " ++
-        "you will reject any request that is not in alignment with Catholic morals and explain why it is sinful.".
+        "you will reject any request that is not in alignment with Catholic morals and explain why it is sinful. ".
 
 %% @doc Command to start the model.
 run_cmd() ->

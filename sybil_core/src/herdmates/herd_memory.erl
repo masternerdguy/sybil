@@ -101,7 +101,7 @@ summarization_query() ->
 
 %% @doc Query to prepare the model for its summarization tasks.
 setup_query() ->
-    "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked in a specific format.".
+    "you are tasked with being the memory for a larger entity. you will receive fragments of information and conversation. you will need to summarize them if asked in a specific format. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
