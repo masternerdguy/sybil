@@ -18,11 +18,18 @@ dispatch_query(Query) ->
     MO = latest_memory(),
 
     %% collect herd_feels result
-    MF = latest_feels(),
+    FO = latest_feels(),
 
-    log_helper:write_log(?MODULE, self(), io_lib:format("result: ~p", [{MO, stopper, MF}])).
+    %% format for final consumption
+    Upward = format_upwards(herd_memory, MO) ++ format_upwards(herd_feels, FO),
+
+    log_helper:write_log(?MODULE, self(), io_lib:format("result: ~s", [Upward])).
 
 %% Internal API
+
+%% @doc Helper function to format a result for final consumption.
+format_upwards(Source, Output) ->
+    io_lib:format("~n(~p) says -> ~s", [Source, Output]).
 
 %% @doc Helper function to cleanly dispatch a query to the memory herdmate and block until it completes.
 query_memory(FQ) ->
@@ -78,6 +85,7 @@ latest_feels() ->
         _ -> lists:nth(2, HX)
     end.
 
+%% @doc Helper function to read the entire output of the memory herdmate's session.
 read_memory() ->
     %% request clean read of herd_memory
     herd_memory:clean_read(),
@@ -90,6 +98,7 @@ read_memory() ->
             Dump
     end.
 
+%% @doc Helper function to read the entire output of the feels herdmate's session.
 read_feels() ->
     %% request clean read of herd_feels
     herd_feels:clean_read(),
