@@ -1,4 +1,4 @@
--module(herd_collector).
+-module(inference_collector).
 
 -export([dispatch_query/1]).
 
