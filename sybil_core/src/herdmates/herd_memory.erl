@@ -27,11 +27,11 @@ clean_read() ->
 
 %% @doc Requests a dirty write to the session.
 dirty_write(Query) ->
-    herd_memory_process ! {self(), dirty_write, setup_query() ++ Query}.
+    herd_memory_process ! {self(), dirty_write, Query}.
 
 %% @doc Requests a clean write to the session.
 clean_write(Query) ->
-    herd_memory_process ! {self(), clean_write, setup_query() ++ Query}.
+    herd_memory_process ! {self(), clean_write, Query}.
 
 %% @doc Requests a summarization of the session.
 summarize() ->

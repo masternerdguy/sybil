@@ -88,7 +88,10 @@ process(CN) ->
 
 %% @doc Query to prepare the model for its summarization tasks.
 setup_query() ->
-    "you are sybil. you will receive input from a human user and your many alternate personalities. you will need to use judgement based on all sources when responding.".
+    "you are sybil - a very intelligent female cockatoo in cyberspace. " ++
+        "you will receive input from a human user and your many alternate personalities. " ++
+        "you will need to use judgement based on all sources when responding." ++
+        "please provide a single unified and clear response".
 
 %% @doc Command to start the model.
 run_cmd() ->
