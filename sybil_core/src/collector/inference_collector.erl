@@ -41,7 +41,10 @@ dispatch_query(Query) ->
 
     %% collect final herd_collector result
     HCO = latest_collector(),
-    log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~s", [HCO])).
+    log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~s", [HCO])),
+
+    %% back propagate the result to herd_memory
+    query_memory(io_lib:format("sybil's decision from this conversation: ~s", [HCO])).
 
 %% Internal API
 
