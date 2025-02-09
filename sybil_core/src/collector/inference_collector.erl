@@ -9,7 +9,7 @@ dispatch_query(Query) ->
     FQ = io_lib:format("user query: ~s", [Query]),
 
     %% dispatch to herd_memory
-    query_memory(FQ),
+    query_memory(io_lib:format("please provide relevant information for this user request: ~s", [FQ])),
 
     %% dispatch to herd_feels
     query_feels(FQ),
@@ -44,7 +44,11 @@ dispatch_query(Query) ->
     log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~s", [HCO])),
 
     %% back propagate the result to herd_memory
-    query_memory(io_lib:format("sybil's decision from this conversation: ~s", [HCO])).
+    log_helper:write_log(?MODULE, self(), io_lib:format("sending decision to herd_memory | ~s", [HCO])),
+    query_memory(io_lib:format("please remember sybil's decision from this conversation: ~s", [HCO])),
+
+    %% return result from herd_collector
+    HCO.
 
 %% Internal API
 

@@ -84,11 +84,15 @@ process(CN) ->
             PID ! {herd_memory_process, clean_read, ssh_helper:capture_tmux(CN)};
         %% performs a quick write to the current session
         {PID, dirty_write, Query} ->
-            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
+            ssh_helper:exec_in_tmux(CN, summarization_query() ++ Query),
             PID ! {herd_memory_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
-            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
+            %% gentle reminder of purpose
+            ssh_helper:exec_in_tmux(CN, setup_query()),
+            ssh_helper:wait_for_prompt(CN),
+            %% pass user query
+            ssh_helper:exec_in_tmux(CN, summarization_query() ++ Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_memory_process, clean_write, done};
         %% requests a summarization of the conversation

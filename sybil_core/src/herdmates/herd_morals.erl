@@ -27,11 +27,11 @@ clean_read() ->
 
 %% @doc Requests a dirty write to the session.
 dirty_write(Query) ->
-    herd_morals_process ! {self(), dirty_write, setup_query() ++ Query}.
+    herd_morals_process ! {self(), dirty_write, Query}.
 
 %% @doc Requests a clean write to the session.
 clean_write(Query) ->
-    herd_morals_process ! {self(), clean_write, setup_query() ++ Query}.
+    herd_morals_process ! {self(), clean_write, Query}.
 
 %% @doc Initialization process which should not be called outside its module.
 process_init() ->
@@ -77,6 +77,10 @@ process(CN) ->
             PID ! {herd_morals_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
+            %% gentle reminder of purpose
+            ssh_helper:exec_in_tmux(CN, setup_query()),
+            ssh_helper:wait_for_prompt(CN),
+            %% pass user query
             ssh_helper:exec_in_tmux(CN, Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_morals_process, clean_write, done};
@@ -90,7 +94,8 @@ process(CN) ->
 setup_query() ->
     "you are responsible for providing moral guidance to a larger entity. " ++
         "you are guided by Roman Catholicism, with an emphasis on Papal Encyclicals and the writings of the Doctors of the Church. " ++
-        "you will reject any request that is not in alignment with Catholic morals and explain why it is sinful. ".
+        "you will reject any request that is not in alignment with Catholic morals and explain why it is immortal and offer an alternative. " ++
+        "be detailed if necessary. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
