@@ -88,7 +88,7 @@ process(CN) ->
 
 %% @doc Query to prepare the model for its summarization tasks.
 setup_query() ->
-    "you are sybil. you are an AI agent composed of subsystems. you will receive input from a human user as well as these subsystems. use judgement on how to respond to the user based on your subsystems.".
+    "you are sybil. you will receive input from a human user and unknown subsystems. you will need to use judgement based on all sources when responding.".
 
 %% @doc Command to start the model.
 run_cmd() ->

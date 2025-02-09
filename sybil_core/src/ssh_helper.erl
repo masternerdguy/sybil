@@ -18,7 +18,7 @@ open_tmux(Connection) ->
 
 %% @doc Executes a command in the open tmux session for the provided handle.
 exec_in_tmux(Connection, Command) ->
-    exec(Connection, "tmux send-keys '" ++ replace_all(Command, "'", "") ++ "' Enter").
+    exec(Connection, "tmux send-keys '" ++ replace_unsafe(Command) ++ "' Enter").
 
 %% @doc Returns the entire history of the open tmux session for the provided handle.
 capture_tmux(Connection) ->
@@ -69,6 +69,20 @@ read(State) ->
     after 1000 ->
         State
     end.
+
+%% @doc Helper function to replace unsafe characters in a list.
+replace_unsafe(String) ->
+    %% remove single quotes
+    NQ = replace_all(String, "'", ""),
+
+    %% remove carriage returns
+    NC = replace_all(NQ, "\r", ""),
+
+    %% replace line feed with space
+    NL = replace_all(NC, "\n", " "),
+
+    %% return result
+    NL.
 
 %% @doc Helper function to replace characters in a list.
 replace_all(String, Find, Replace) ->

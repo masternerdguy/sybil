@@ -25,7 +25,7 @@ dispatch_query(Query) ->
     log_helper:write_log(?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])),
 
     %% dispatch to herd_collector
-    query_collector(io_lib:format("~s ~n~n~n ~s", [FQ, Upward])),
+    query_collector(io_lib:format("~s|~s", [FQ, Upward])),
 
     %% collect final herd_collector result
     HCO = latest_collector(),
