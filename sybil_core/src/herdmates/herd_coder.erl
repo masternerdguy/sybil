@@ -88,7 +88,10 @@ process(CN) ->
 
 %% @doc Query to prepare the model for its summarization tasks.
 setup_query() ->
-    "you are responsible for writing computer code for a larger entity. think carefully and step-by-step. proper syntax, formatting, and semantics are vital. ".
+    "you are responsible for writing computer code for a larger entity. " ++
+        "think carefully and step-by-step. " ++
+        "proper syntax, formatting, and semantics are vital. " ++
+        "if the request is not coding related, you should not offer code but general thoughts. ".
 
 %% @doc Command to start the model.
 run_cmd() ->

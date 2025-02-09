@@ -17,7 +17,7 @@ start(_StartType, _StartArgs) ->
     crypto:start(),
     ssh:start(),
 
-    %% delay 30 seconds so containers can initialize properly
+    %% delay 15 seconds so containers can initialize properly
     timer:sleep(timer:seconds(15)),
 
     %% start herd_memory with a delay

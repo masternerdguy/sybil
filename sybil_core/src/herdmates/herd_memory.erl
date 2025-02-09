@@ -58,6 +58,13 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
+    log_helper:write_log(?MODULE, self(), "Ready for summarization query."),
+
+    %% send summarization query
+    ssh_helper:exec_in_tmux(CN, summarization_query()),
+
+    %% wait for ollama to initialize
+    ssh_helper:wait_for_prompt(CN),
     log_helper:write_log(?MODULE, self(), "Ready for use!"),
 
     %% start listening
