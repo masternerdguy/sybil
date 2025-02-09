@@ -17,13 +17,24 @@ start(_StartType, _StartArgs) ->
     crypto:start(),
     ssh:start(),
 
-    %% delay 30 seconds
+    %% delay 30 seconds so containers can initialize properly
     timer:sleep(timer:seconds(30)),
 
-    %% start herdmates
+    %% start herd_memory with a delay
     herd_memory:start(),
+    timer:sleep(timer:seconds(30)),
+
+    %% start herd_feels with a delay
     herd_feels:start(),
+    timer:sleep(timer:seconds(30)),
+
+    %% start herd_morals with a delay
+    herd_morals:start(),
+    timer:sleep(timer:seconds(30)),
+
+    %% start herd_collector with a delay
     herd_collector:start(),
+    timer:sleep(timer:seconds(30)),
 
     %% complete startup
     sybil_core_sup:start_link().
