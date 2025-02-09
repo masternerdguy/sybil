@@ -17,6 +17,9 @@ dispatch_query(Query) ->
     %% dispatch to herd_morals
     query_morals(FQ),
 
+    %% dispatch to herd_coder
+    query_coder(FQ),
+
     %% collect herd_memory result
     MO = latest_memory(),
 
@@ -26,8 +29,11 @@ dispatch_query(Query) ->
     %% collect herd_morals result
     MOO = latest_morals(),
 
+    %% collect herd_coder result
+    CO = latest_coder(),
+
     %% format for final consumption
-    Upward = format_upwards(herd_memory, MO) ++ format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO),
+    Upward = format_upwards(herd_memory, MO) ++ format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO) ++ format_upwards(herd_coder, CO),
     log_helper:write_log(?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])),
 
     %% dispatch to herd_collector
@@ -41,7 +47,7 @@ dispatch_query(Query) ->
 
 %% @doc Helper function to format a result for final consumption.
 format_upwards(Source, Output) ->
-    io_lib:format("~n(~p) says -> ~s", [Source, Output]).
+    io_lib:format(" ~n(~p) says -> ~s | ", [Source, Output]).
 
 %% @doc Helper function to cleanly dispatch a query to the memory herdmate and block until it completes.
 query_memory(FQ) ->
@@ -85,6 +91,17 @@ query_morals(FQ) ->
     %% wait for completion
     receive
         {herd_morals_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "morals herdmate is done!")
+    end.
+
+%% @doc Helper function to cleanly dispatch a query to the coder herdmate and block until it completes.
+query_coder(FQ) ->
+    %% dispatch to herd_coder
+    herd_coder:clean_write(FQ),
+    log_helper:write_log(?MODULE, self(), "waiting for coder herdmate to finish..."),
+
+    %% wait for completion
+    receive
+        {herd_coder_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "coder herdmate is done!")
     end.
 
 %% @doc Helper function to get the latest query result from the memory herdmate.
@@ -151,6 +168,22 @@ latest_morals() ->
         _ -> lists:nth(2, HX)
     end.
 
+%% @doc Helper function to get the latest query result from the coder herdmate.
+latest_coder() ->
+    %% read herd_coder
+    HM = read_coder(),
+
+    %% split and reverse to get output sections
+    HX = lists:reverse(string:split(HM, "\n\n>>>", all)),
+
+    %% check length
+    case length(HX) >= 2 of
+        %% no output yet
+        false -> none;
+        %% return last output
+        _ -> lists:nth(2, HX)
+    end.
+
 %% @doc Helper function to read the entire output of the memory herdmate's session.
 read_memory() ->
     %% request clean read of herd_memory
@@ -200,5 +233,18 @@ read_morals() ->
     receive
         {herd_morals_process, clean_read, Dump} -> 
             log_helper:write_log(?MODULE, self(), "morals herdmate is done!"),
+            Dump
+    end.
+
+%% @doc Helper function to read the entire output of the coder herdmate's session.
+read_coder() ->
+    %% request clean read of herd_coder
+    herd_coder:clean_read(),
+    log_helper:write_log(?MODULE, self(), "waiting for coder herdmate to dump..."),
+
+    %% wait for completion
+    receive
+        {herd_coder_process, clean_read, Dump} -> 
+            log_helper:write_log(?MODULE, self(), "coder herdmate is done!"),
             Dump
     end.
