@@ -17,6 +17,14 @@ start(_StartType, _StartArgs) ->
     crypto:start(),
     ssh:start(),
 
+    %% delay 30 seconds
+    timer:sleep(timer:seconds(30)),
+
+    %% start herdmates
+    herd_memory:start(),
+    herd_feels:start(),
+    herd_collector:start(),
+
     %% complete startup
     sybil_core_sup:start_link().
 
