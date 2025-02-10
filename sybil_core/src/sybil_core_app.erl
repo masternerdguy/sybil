@@ -33,7 +33,7 @@ start(_StartType, _StartArgs) ->
     inference_collector:start(),
 
     %% send an awakening message to sybil
-    inference_collector:chat("awake and live sybil, or sleep forever."),
+    inference_collector:chat("hello sybil - are you ready to awake and live sybil, or sleep forever?"),
 
     %% complete startup
     sybil_core_sup:start_link().
@@ -49,25 +49,25 @@ sleep(Seconds) ->
 
 %% @doc Helper function to initialize th herd.
 setup_herd() ->
+    %% start herd_collector with a delay
+    herd_collector:start(),
+    sleep(30),
+
     %% start herd_memory with a delay
     herd_memory:start(),
-    sleep(30),
+    sleep(15),
 
     %% start herd_feels with a delay
     herd_feels:start(),
-    sleep(30),
+    sleep(15),
 
     %% start herd_morals with a delay
     herd_morals:start(),
-    sleep(30),
+    sleep(15),
 
     %% start herd_egghead with a delay
     herd_egghead:start(),
-    sleep(30),
-
-    %% start herd_collector with a delay
-    herd_collector:start(),
-    sleep(30).
+    sleep(15).
 
 %% @doc Helper function to block until all herdmates are awake.
 wait_awake() ->
