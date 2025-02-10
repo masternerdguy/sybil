@@ -68,7 +68,7 @@ process() ->
 
             %% format for final consumption
             Upward =
-                format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO) ++
+                format_upwards(herd_morals, MOO) ++ format_upwards(herd_feels, FO) ++
                     format_upwards(herd_egghead, CO) ++ format_upwards(herd_memory, MO),
 
             log_helper:write_log(
