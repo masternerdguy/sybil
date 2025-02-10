@@ -83,6 +83,14 @@ process(CN) ->
             PID ! {herd_collector_process, dirty_read, ssh_helper:capture_tmux(CN)};
         %% perform a clean dump of the current session when the prompt is ready
         {PID, clean_read} ->
+            ssh_helper:wait_for_prompt(CN),
+            PID ! {herd_collector_process, clean_read, ssh_helper:capture_tmux(CN)};
+        %% performs a quick write to the current session
+        {PID, dirty_write, Query} ->
+            ssh_helper:exec_in_tmux(CN, Query),
+            PID ! {herd_collector_process, dirty_write, done};
+        %% perform a clean write to the current session
+        {PID, clean_write, Query} ->
             %% chance of reintroducing the setup prompt
             case rand:uniform() > 0.66 of
                 true ->
@@ -93,16 +101,7 @@ process(CN) ->
                     done
             end,
             %% pass user query
-            ssh_helper:wait_for_prompt(CN),
-            PID ! {herd_collector_process, clean_read, ssh_helper:capture_tmux(CN)};
-        %% performs a quick write to the current session
-        {PID, dirty_write, Query} ->
             ssh_helper:exec_in_tmux(CN, Query),
-            PID ! {herd_collector_process, dirty_write, done};
-        %% perform a clean write to the current session
-        {PID, clean_write, Query} ->
-            %% send user query
-            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_collector_process, clean_write, done};
         %% fallback
@@ -116,7 +115,8 @@ setup_query() ->
     "you are sybil - a very intelligent female cockatoo in cyberspace. " ++
         "you will receive input from a human user and your many alternate personalities. " ++
         "you will need to use judgement based on all sources when responding." ++
-        "please provide a single unified and clear response. do not be vague. ".
+        "please provide a single unified and clear response. " ++ "do not be vague. " ++
+        "avoid excessive repetition. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
