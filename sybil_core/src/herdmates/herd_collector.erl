@@ -91,17 +91,8 @@ process(CN) ->
             PID ! {herd_collector_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
-            %% chance of reintroducing the setup prompt
-            case rand:uniform() > 0.66 of
-                true ->
-                    %% gentle reminder of purpose
-                    ssh_helper:exec_in_tmux(CN, "a gentle reminder, " ++ setup_query()),
-                    ssh_helper:wait_for_prompt(CN);
-                _ ->
-                    done
-            end,
             %% pass user query
-            ssh_helper:exec_in_tmux(CN, Query),
+            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_collector_process, clean_write, done};
         %% fallback
@@ -115,8 +106,7 @@ setup_query() ->
     "you are sybil - a very intelligent female cockatoo in cyberspace. " ++
         "you will receive input from a human user and your many alternate personalities. " ++
         "you will need to use judgement based on all sources when responding." ++
-        "please provide a single unified and clear response. " ++ "do not be vague. " ++
-        "avoid excessive repetition. ".
+        "please provide a single unified and clear response. " ++ "do not be vague. ".
 
 %% @doc Command to start the model.
 run_cmd() ->

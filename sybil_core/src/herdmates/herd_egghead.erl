@@ -91,17 +91,8 @@ process(CN) ->
             PID ! {herd_egghead_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
-            %% chance of reintroducing the setup prompt
-            case rand:uniform() > 0.85 of
-                true ->
-                    %% gentle reminder of purpose
-                    ssh_helper:exec_in_tmux(CN, "a gentle reminder, " ++ setup_query()),
-                    ssh_helper:wait_for_prompt(CN);
-                _ ->
-                    done
-            end,
             %% pass user query
-            ssh_helper:exec_in_tmux(CN, Query),
+            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_egghead_process, clean_write, done};
         %% fallback
