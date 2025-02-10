@@ -20,8 +20,8 @@ dispatch_query(Query) ->
     %% dispatch to herd_morals
     query_morals(FQ),
 
-    %% dispatch to herd_coder
-    query_coder(FQ),
+    %% dispatch to herd_egghead
+    query_egghead(FQ),
 
     %% collect herd_memory result
     MO = latest_memory(),
@@ -32,11 +32,11 @@ dispatch_query(Query) ->
     %% collect herd_morals result
     MOO = latest_morals(),
 
-    %% collect herd_coder result
-    CO = latest_coder(),
+    %% collect herd_egghead result
+    CO = latest_egghead(),
 
     %% format for final consumption
-    Upward = format_upwards(herd_memory, MO) ++ format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO) ++ format_upwards(herd_coder, CO),
+    Upward = format_upwards(herd_memory, MO) ++ format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO) ++ format_upwards(herd_egghead, CO),
     log_helper:write_log(?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])),
 
     %% dispatch to herd_collector
@@ -104,14 +104,14 @@ query_morals(FQ) ->
     end.
 
 %% @doc Helper function to cleanly dispatch a query to the coder herdmate and block until it completes.
-query_coder(FQ) ->
-    %% dispatch to herd_coder
-    herd_coder:clean_write(FQ),
+query_egghead(FQ) ->
+    %% dispatch to herd_egghead
+    herd_egghead:clean_write(FQ),
     log_helper:write_log(?MODULE, self(), "waiting for coder herdmate to finish..."),
 
     %% wait for completion
     receive
-        {herd_coder_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "coder herdmate is done!")
+        {herd_egghead_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "coder herdmate is done!")
     end.
 
 %% @doc Helper function to get the latest query result from the memory herdmate.
@@ -179,9 +179,9 @@ latest_morals() ->
     end.
 
 %% @doc Helper function to get the latest query result from the coder herdmate.
-latest_coder() ->
-    %% read herd_coder
-    HM = read_coder(),
+latest_egghead() ->
+    %% read herd_egghead
+    HM = read_egghead(),
 
     %% split and reverse to get output sections
     HX = lists:reverse(string:split(HM, "\n\n>>>", all)),
@@ -247,14 +247,14 @@ read_morals() ->
     end.
 
 %% @doc Helper function to read the entire output of the coder herdmate's session.
-read_coder() ->
-    %% request clean read of herd_coder
-    herd_coder:clean_read(),
+read_egghead() ->
+    %% request clean read of herd_egghead
+    herd_egghead:clean_read(),
     log_helper:write_log(?MODULE, self(), "waiting for coder herdmate to dump..."),
 
     %% wait for completion
     receive
-        {herd_coder_process, clean_read, Dump} -> 
+        {herd_egghead_process, clean_read, Dump} -> 
             log_helper:write_log(?MODULE, self(), "coder herdmate is done!"),
             Dump
     end.

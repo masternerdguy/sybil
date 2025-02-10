@@ -86,7 +86,7 @@ process(CN) ->
     end,
     process(CN).
 
-%% @doc Query to prepare the model for its summarization tasks.
+%% @doc Query to prepare the model for its tasks.
 setup_query() ->
     "your feelings are important and should be shared openly. ".
 

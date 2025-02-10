@@ -107,7 +107,7 @@ process(CN) ->
 summarization_query() ->
     "please summarize this conversation with bullet points in the format \"one keyword\"->\"details\" ".
 
-%% @doc Query to prepare the model for its summarization tasks.
+%% @doc Query to prepare the model for its tasks.
 setup_query() ->
     "you are tasked with being the memory for a larger entity. " ++
         "you will receive fragments of information and conversation. " ++

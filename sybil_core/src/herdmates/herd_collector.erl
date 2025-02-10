@@ -87,7 +87,7 @@ process(CN) ->
     end,
     process(CN).
 
-%% @doc Query to prepare the model for its summarization tasks.
+%% @doc Query to prepare the model for its tasks.
 setup_query() ->
     "you are sybil - a very intelligent female cockatoo in cyberspace. " ++
         "you will receive input from a human user and your many alternate personalities. " ++

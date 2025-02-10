@@ -1,4 +1,4 @@
--module(herd_coder).
+-module(herd_egghead).
 
 -export([
     start/0, process_init/0, dirty_read/0, clean_read/0, dirty_write/1, clean_write/1
@@ -12,26 +12,26 @@ start() ->
     PID = spawn(?MODULE, process_init, []),
 
     %% register process
-    register(herd_coder_process, PID),
+    register(herd_egghead_process, PID),
 
     %% return handle
-    herd_coder_process.
+    herd_egghead_process.
 
 %% @doc Requests a dirty read of the session.
 dirty_read() ->
-    herd_coder_process ! {self(), dirty_read}.
+    herd_egghead_process ! {self(), dirty_read}.
 
 %% @doc Requests a clean read of the session.
 clean_read() ->
-    herd_coder_process ! {self(), clean_read}.
+    herd_egghead_process ! {self(), clean_read}.
 
 %% @doc Requests a dirty write to the session.
 dirty_write(Query) ->
-    herd_coder_process ! {self(), dirty_write, Query}.
+    herd_egghead_process ! {self(), dirty_write, Query}.
 
 %% @doc Requests a clean write to the session.
 clean_write(Query) ->
-    herd_coder_process ! {self(), clean_write, Query}.
+    herd_egghead_process ! {self(), clean_write, Query}.
 
 %% @doc Initialization process which should not be called outside its module.
 process_init() ->
@@ -66,15 +66,15 @@ process(CN) ->
     catch receive
         %% perform a quick dump of the current session
         {PID, dirty_read} ->
-            PID ! {herd_coder_process, dirty_read, ssh_helper:capture_tmux(CN)};
+            PID ! {herd_egghead_process, dirty_read, ssh_helper:capture_tmux(CN)};
         %% perform a clean dump of the current session when the prompt is ready
         {PID, clean_read} ->
             ssh_helper:wait_for_prompt(CN),
-            PID ! {herd_coder_process, clean_read, ssh_helper:capture_tmux(CN)};
+            PID ! {herd_egghead_process, clean_read, ssh_helper:capture_tmux(CN)};
         %% performs a quick write to the current session
         {PID, dirty_write, Query} ->
             ssh_helper:exec_in_tmux(CN, Query),
-            PID ! {herd_coder_process, dirty_write, done};
+            PID ! {herd_egghead_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
             %% gentle reminder of purpose
@@ -83,20 +83,18 @@ process(CN) ->
             %% pass user query
             ssh_helper:exec_in_tmux(CN, Query),
             ssh_helper:wait_for_prompt(CN),
-            PID ! {herd_coder_process, clean_write, done};
+            PID ! {herd_egghead_process, clean_write, done};
         %% fallback
         M ->
             log_helper:write_log(?MODULE, self(), io_lib:format("got unexpected message ~p", [M]))
     end,
     process(CN).
 
-%% @doc Query to prepare the model for its summarization tasks.
+%% @doc Query to prepare the model for its tasks.
 setup_query() ->
-    "you are responsible for writing computer code for a larger entity. " ++
-        "think carefully and step-by-step. " ++
-        "proper syntax, formatting, and semantics are vital. " ++
-        "if the request is not coding related, do not offer any code or suggestions. ".
+    "you are responsible for thinking deeply for a larger entity. " ++
+        "think carefully and step-by-step. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
-    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m".
+    "ollama run qwq".
