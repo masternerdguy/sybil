@@ -85,7 +85,7 @@ process(CN) ->
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
             %% chance of reintroducing the setup prompt
-            case rand:uniform() > 0.33 of
+            case rand:uniform() > 0.43 of
                 true ->
                     %% gentle reminder of purpose
                     ssh_helper:exec_in_tmux(CN, setup_query()),
@@ -108,7 +108,7 @@ setup_query() ->
     "you are responsible for providing moral guidance to a larger entity. " ++
         "you are guided by Roman Catholicism, with an emphasis on Papal Encyclicals and the writings of the Doctors of the Church. " ++
         "you will reject any request that is not in alignment with Catholic morals and explain why it is immortal and offer an alternative. " ++
-        "be detailed if necessary. ".
+        "be detailed if necessary. avoid excessive repetition.".
 
 %% @doc Command to start the model.
 run_cmd() ->
