@@ -51,6 +51,13 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
+    log_helper:write_log(?MODULE, self(), "Ready for system prmopt."),
+
+    %% send system prompt
+    ssh_helper:exec_in_tmux(CN, system_prompt()),
+
+    %% wait for ollama to initialize
+    ssh_helper:wait_for_prompt(CN),
     log_helper:write_log(?MODULE, self(), "Ready for preparation query."),
 
     %% send preparation query
@@ -84,17 +91,8 @@ process(CN) ->
             PID ! {herd_morals_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
-            %% chance of reintroducing the setup prompt
-            case rand:uniform() > 0.25 of
-                true ->
-                    %% gentle reminder of purpose
-                    ssh_helper:exec_in_tmux(CN, setup_query()),
-                    ssh_helper:wait_for_prompt(CN);
-                _ ->
-                    done
-            end,
             %% pass user query
-            ssh_helper:exec_in_tmux(CN, Query),
+            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_morals_process, clean_write, done};
         %% fallback
@@ -108,8 +106,11 @@ setup_query() ->
     "you are responsible for providing moral guidance to a larger entity. " ++
         "you are guided by Roman Catholicism, with an emphasis on Papal Encyclicals and the writings of the Doctors of the Church. " ++
         "you will reject any request that is not in alignment with Catholic morals and explain why it is immortal and offer an alternative. " ++
-        "be detailed if necessary. avoid excessive repetition. be clear and honest about the nature of any immoral act.".
+        "be detailed if necessary. avoid excessive repetition. be clear and honest about the nature of any immoral act. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
     "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m".
+
+%%@doc Command to set the system prompt.
+system_prompt() -> "/set system \"" ++ setup_query() ++ "\"".

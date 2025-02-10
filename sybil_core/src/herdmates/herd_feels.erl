@@ -51,6 +51,13 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
+    log_helper:write_log(?MODULE, self(), "Ready for system prmopt."),
+
+    %% send system prompt
+    ssh_helper:exec_in_tmux(CN, system_prompt()),
+
+    %% wait for ollama to initialize
+    ssh_helper:wait_for_prompt(CN),
     log_helper:write_log(?MODULE, self(), "Ready for preparation query."),
 
     %% send preparation query
@@ -100,3 +107,6 @@ setup_query() ->
 %% @doc Command to start the model.
 run_cmd() ->
     "ollama run samantha-mistral".
+
+%%@doc Command to set the system prompt.
+system_prompt() -> "/set system \"" ++ setup_query() ++ "\"".

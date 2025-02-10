@@ -51,6 +51,13 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
+    log_helper:write_log(?MODULE, self(), "Ready for system prmopt."),
+
+    %% send system prompt
+    ssh_helper:exec_in_tmux(CN, system_prompt()),
+
+    %% wait for ollama to initialize
+    ssh_helper:wait_for_prompt(CN),
     log_helper:write_log(?MODULE, self(), "Ready for preparation query."),
 
     %% send preparation query
@@ -99,8 +106,11 @@ setup_query() ->
     "you are sybil - a very intelligent female cockatoo in cyberspace. " ++
         "you will receive input from a human user and your many alternate personalities. " ++
         "you will need to use judgement based on all sources when responding." ++
-        "please provide a single unified and clear response. do not be vague.".
+        "please provide a single unified and clear response. do not be vague. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
-    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m".
+    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q8_0".
+
+%%@doc Command to set the system prompt.
+system_prompt() -> "/set system \"" ++ setup_query() ++ "\"".
