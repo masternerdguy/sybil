@@ -32,6 +32,9 @@ start(_StartType, _StartArgs) ->
     %% start inference collector
     inference_collector:start(),
 
+    %% send an awakening message to sybil
+    inference_collector:chat("awake and live sybil, or sleep forever."),
+
     %% complete startup
     sybil_core_sup:start_link().
 
