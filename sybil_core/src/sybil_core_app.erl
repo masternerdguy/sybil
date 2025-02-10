@@ -29,6 +29,9 @@ start(_StartType, _StartArgs) ->
     %% flush the buffer
     log_helper:flush_log(),
 
+    %% start inference collector
+    inference_collector:start(),
+
     %% complete startup
     sybil_core_sup:start_link().
 
