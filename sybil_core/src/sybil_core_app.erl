@@ -33,7 +33,7 @@ start(_StartType, _StartArgs) ->
     inference_collector:start(),
 
     %% send an awakening message to sybil
-    io:fwritewrite("asking sybil to awake... then you can chat!~n"),
+    io:fwrite("asking sybil to awake... then you can chat!~n"),
     inference_collector:chat("hello sybil - do you know who you are?"),
 
     %% complete startup
