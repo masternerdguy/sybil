@@ -20,6 +20,26 @@ start(_StartType, _StartArgs) ->
     %% delay 15 seconds so containers can initialize properly
     sleep(15),
 
+    %% initialize herdmates
+    setup_herd(),
+
+    %% wait for herdmates
+    wait_awake(),
+
+    %% complete startup
+    sybil_core_sup:start_link().
+
+stop(_State) ->
+    ok.
+
+%% internal functions
+
+%% @doc Helper function to sleep N seconds.
+sleep(Seconds) ->
+    timer:sleep(timer:seconds(Seconds)).
+
+%% @doc Helper function to initialize th herd.
+setup_herd() ->
     %% start herd_memory with a delay
     herd_memory:start(),
     sleep(30),
@@ -38,35 +58,38 @@ start(_StartType, _StartArgs) ->
 
     %% start herd_collector with a delay
     herd_collector:start(),
-    sleep(30),
+    sleep(30).
 
-    %% do a clean read on all herdmates
-    catch read_herd(),
+%% @doc Helper function to block until all herdmates are awake.
+wait_awake() ->
+    %% send awake signals
+    herd_memory:awake(),
+    herd_feels:awake(),
+    herd_morals:awake(),
+    herd_egghead:awake(),
+    herd_collector:awake(),
 
-    %% complete startup
-    sybil_core_sup:start_link().
+    %% wait for herd_memory
+    receive
+        {herd_memory_process, indeed} -> done
+    end,
 
-stop(_State) ->
-    ok.
+    %% wait for herd_feels
+    receive
+        {herd_feels_process, indeed} -> done
+    end,
 
-%% internal functions
+    %% wait for herd_morals
+    receive
+        {herd_morals_process, indeed} -> done
+    end,
 
-%% @doc Helper function to sleep N seconds.
-sleep(Seconds) ->
-    timer:sleep(timer:seconds(Seconds)).
+    %% wait for herd_egghead
+    receive
+        {herd_egghead_process, indeed} -> done
+    end,
 
-%% @doc Helper function to do a smoketest read of all herdmates. 
-read_herd() ->
-    catch herd_memory:clean_read(),
-
-    sleep(15),
-    catch herd_feels:clean_read(),
-
-    sleep(15),
-    catch herd_morals:clean_read(),
-
-    sleep(15),
-    catch herd_egghead:clean_read(),
-
-    sleep(15),
-    catch herd_collector:clean_read().
+    %% wait for herd_collector
+    receive
+        {herd_collector_process, indeed} -> done
+    end.

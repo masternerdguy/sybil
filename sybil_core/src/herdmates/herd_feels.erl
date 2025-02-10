@@ -1,7 +1,7 @@
 -module(herd_feels).
 
 -export([
-    start/0, process_init/0, dirty_read/0, clean_read/0, dirty_write/1, clean_write/1
+    start/0, process_init/0, dirty_read/0, clean_read/0, dirty_write/1, clean_write/1, awake/0
 ]).
 
 %% API
@@ -16,6 +16,10 @@ start() ->
 
     %% return handle
     herd_feels_process.
+
+%% @doc Requests to be notified when the process is ready.
+awake() ->
+    herd_feels_process ! {self(), awake}.
 
 %% @doc Requests a dirty read of the session.
 dirty_read() ->
@@ -64,6 +68,10 @@ process_init() ->
 %% @doc Worker process that handles incoming messages and responds to the caller.
 process(CN) ->
     catch receive
+        %% simple check to see if the process is listening
+        {PID, awake} ->
+            ssh_helper:wait_for_prompt(CN),
+            PID ! {herd_feels_process, indeed};
         %% perform a quick dump of the current session
         {PID, dirty_read} ->
             PID ! {herd_feels_process, dirty_read, ssh_helper:capture_tmux(CN)};
