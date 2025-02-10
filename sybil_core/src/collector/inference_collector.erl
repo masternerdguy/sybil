@@ -155,16 +155,16 @@ query_morals(FQ) ->
             log_helper:write_log(?MODULE, self(), "morals herdmate is done!")
     end.
 
-%% @doc Helper function to cleanly dispatch a query to the coder herdmate and block until it completes.
+%% @doc Helper function to cleanly dispatch a query to the egghead herdmate and block until it completes.
 query_egghead(FQ) ->
     %% dispatch to herd_egghead
     herd_egghead:clean_write(FQ),
-    log_helper:write_log(?MODULE, self(), "waiting for coder herdmate to finish..."),
+    log_helper:write_log(?MODULE, self(), "waiting for egghead herdmate to finish..."),
 
     %% wait for completion
     receive
         {herd_egghead_process, clean_write, done} ->
-            log_helper:write_log(?MODULE, self(), "coder herdmate is done!")
+            log_helper:write_log(?MODULE, self(), "egghead herdmate is done!")
     end.
 
 %% @doc Helper function to get the latest query result from the memory herdmate.
@@ -231,7 +231,7 @@ latest_morals() ->
         _ -> lists:nth(2, HX)
     end.
 
-%% @doc Helper function to get the latest query result from the coder herdmate.
+%% @doc Helper function to get the latest query result from the egghead herdmate.
 latest_egghead() ->
     %% read herd_egghead
     HM = read_egghead(),
@@ -299,15 +299,15 @@ read_morals() ->
             Dump
     end.
 
-%% @doc Helper function to read the entire output of the coder herdmate's session.
+%% @doc Helper function to read the entire output of the egghead herdmate's session.
 read_egghead() ->
     %% request clean read of herd_egghead
     herd_egghead:clean_read(),
-    log_helper:write_log(?MODULE, self(), "waiting for coder herdmate to dump..."),
+    log_helper:write_log(?MODULE, self(), "waiting for egghead herdmate to dump..."),
 
     %% wait for completion
     receive
         {herd_egghead_process, clean_read, Dump} ->
-            log_helper:write_log(?MODULE, self(), "coder herdmate is done!"),
+            log_helper:write_log(?MODULE, self(), "egghead herdmate is done!"),
             Dump
     end.

@@ -83,6 +83,16 @@ process(CN) ->
             PID ! {herd_collector_process, dirty_read, ssh_helper:capture_tmux(CN)};
         %% perform a clean dump of the current session when the prompt is ready
         {PID, clean_read} ->
+            %% chance of reintroducing the setup prompt
+            case rand:uniform() > 0.66 of
+                true ->
+                    %% gentle reminder of purpose
+                    ssh_helper:exec_in_tmux(CN, "a gentle reminder, " ++ setup_query()),
+                    ssh_helper:wait_for_prompt(CN);
+                _ ->
+                    done
+            end,
+            %% pass user query
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_collector_process, clean_read, ssh_helper:capture_tmux(CN)};
         %% performs a quick write to the current session

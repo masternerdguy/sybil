@@ -113,7 +113,7 @@ process(CN) ->
             case rand:uniform() > 0.33 of
                 true ->
                     %% gentle reminder of purpose
-                    ssh_helper:exec_in_tmux(CN, setup_query()),
+                    ssh_helper:exec_in_tmux(CN, "a gentle reminder, " ++ setup_query()),
                     ssh_helper:wait_for_prompt(CN);
                 _ ->
                     done

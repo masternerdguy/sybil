@@ -33,7 +33,7 @@ start(_StartType, _StartArgs) ->
     inference_collector:start(),
 
     %% send an awakening message to sybil
-    io:write("asking sybil to awake... then you can chat!~n"),
+    io:fwritewrite("asking sybil to awake... then you can chat!~n"),
     inference_collector:chat("hello sybil - do you know who you are?"),
 
     %% complete startup
@@ -83,7 +83,7 @@ wait_awake() ->
         herd_egghead:awake(),
         herd_collector:awake(),
 
-        Timeout = 30000,
+        Timeout = 15000,
 
         %% wait for herd_memory
         receive

@@ -92,7 +92,7 @@ process(CN) ->
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
             %% pass user query
-            ssh_helper:exec_in_tmux(CN, setup_query() ++ Query),
+            ssh_helper:exec_in_tmux(CN, Query),
             ssh_helper:wait_for_prompt(CN),
             PID ! {herd_morals_process, clean_write, done};
         %% fallback
