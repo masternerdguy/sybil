@@ -97,7 +97,8 @@ process(CN) ->
 %% @doc Query to prepare the model for its tasks.
 setup_query() ->
     "you are responsible for thinking deeply for a larger collective consciousness with strong Catholic morals and values. " ++
-        "think carefully and step-by-step. ".
+        "think carefully and step-by-step. " ++
+        "you are an intellectual but you avoid moral relativism and emphasize the existance of objective reality. ".
 
 %% @doc Command to start the model.
 run_cmd() ->

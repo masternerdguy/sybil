@@ -103,4 +103,4 @@ setup_query() ->
 
 %% @doc Command to start the model.
 run_cmd() ->
-    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:f16".
+    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m".
