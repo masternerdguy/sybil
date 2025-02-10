@@ -1,59 +1,107 @@
 -module(inference_collector).
 
--export([dispatch_query/1]).
+-export([start/0, chat/1, process_init/0]).
 
 %% API
 
-dispatch_query(Query) ->
-    %% get timestamp
-    DT = calendar:now_to_universal_time(os:timestamp()),
+%% @doc Starts the inference collector which facilitates sybil's conversations.
+start() ->
+    %% spawn process
+    PID = spawn(?MODULE, process_init, []),
 
-    %% format query
-    FQ = io_lib:format("[datetime: ~p] user query: ~s", [DT, Query]),
+    %% register process
+    register(inference_collector_process, PID),
 
-    %% dispatch to herd_memory
-    query_memory(io_lib:format("please provide relevant information for this user request from known fragments: ~s", [FQ])),
+    %% return handle
+    inference_collector_process.
 
-    %% dispatch to herd_feels
-    query_feels(FQ),
+%% @doc Initialization process which should not be called outside its module.
+process_init() ->
+    %% start listening
+    process().
 
-    %% dispatch to herd_morals
-    query_morals(FQ),
-
-    %% dispatch to herd_egghead
-    query_egghead(FQ),
-
-    %% collect herd_memory result
-    MO = latest_memory(),
-
-    %% collect herd_feels result
-    FO = latest_feels(),
-
-    %% collect herd_morals result
-    MOO = latest_morals(),
-
-    %% collect herd_egghead result
-    CO = latest_egghead(),
-
-    %% format for final consumption
-    Upward = format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO) ++ format_upwards(herd_egghead, CO) ++ format_upwards(herd_memory, MO),
-    log_helper:write_log(?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])),
-
-    %% dispatch to herd_collector
-    query_collector(io_lib:format("~s|~s", [FQ, Upward])),
-
-    %% collect final herd_collector result
-    HCO = latest_collector(),
-    log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~s", [HCO])),
-
-    %% back propagate the result to herd_memory
-    log_helper:write_log(?MODULE, self(), io_lib:format("sending decision to herd_memory | ~s", [HCO])),
-    query_memory(io_lib:format("please remember sybil's decision from this conversation: ~s", [HCO])),
-
-    %% return result from herd_collector
-    HCO.
+%% @doc Sends a chat message to sybil - the response will be returned to the calling process.
+chat(Query) ->
+    inference_collector_process ! {self(), query, Query}.
 
 %% Internal API
+
+%% @doc Worker process which handles chatting with sybil.
+process() ->
+    catch receive
+        %% send sybil a new message and return her eventual response
+        {PID, query, Query} ->
+            %% get timestamp
+            DT = calendar:now_to_universal_time(os:timestamp()),
+
+            %% format query
+            FQ = io_lib:format("[datetime: ~p] user query: ~s", [DT, Query]),
+
+            %% dispatch to herd_memory
+            query_memory(
+                io_lib:format(
+                    "please provide relevant information for this user request from known fragments: ~s",
+                    [FQ]
+                )
+            ),
+
+            %% dispatch to herd_feels
+            query_feels(FQ),
+
+            %% dispatch to herd_morals
+            query_morals(FQ),
+
+            %% dispatch to herd_egghead
+            query_egghead(FQ),
+
+            %% collect herd_memory result
+            MO = latest_memory(),
+
+            %% collect herd_feels result
+            FO = latest_feels(),
+
+            %% collect herd_morals result
+            MOO = latest_morals(),
+
+            %% collect herd_egghead result
+            CO = latest_egghead(),
+
+            %% format for final consumption
+            Upward =
+                format_upwards(herd_feels, FO) ++ format_upwards(herd_morals, MOO) ++
+                    format_upwards(herd_egghead, CO) ++ format_upwards(herd_memory, MO),
+
+            log_helper:write_log(
+                ?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])
+            ),
+
+            %% dispatch to herd_collector
+            query_collector(io_lib:format("~s|~s", [FQ, Upward])),
+
+            %% collect final herd_collector result
+            HCO = latest_collector(),
+            log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~s", [HCO])),
+
+            %% back propagate the result to herd_memory
+            log_helper:write_log(
+                ?MODULE, self(), io_lib:format("sending decision to herd_memory | ~s", [HCO])
+            ),
+
+            query_memory(
+                io_lib:format(
+                    "please remember sybil's decision from this conversation and summarize it as bullet points for future sessions: ~s",
+                    [HCO]
+                )
+            ),
+
+            %% return result from herd_collector
+            HCO,
+            PID ! {inference_collector_process, query, HCO};
+        %% fallback
+        M ->
+            log_helper:write_log(?MODULE, self(), io_lib:format("got unexpected message ~p", [M]))
+    end,
+    process().
 
 %% @doc Helper function to format a result for final consumption.
 format_upwards(Source, Output) ->
@@ -67,7 +115,8 @@ query_memory(FQ) ->
 
     %% wait for completion
     receive
-        {herd_memory_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "memory herdmate is done!")
+        {herd_memory_process, clean_write, done} ->
+            log_helper:write_log(?MODULE, self(), "memory herdmate is done!")
     end.
 
 %% @doc Helper function to cleanly dispatch a query to the feels herdmate and block until it completes.
@@ -78,7 +127,8 @@ query_feels(FQ) ->
 
     %% wait for completion
     receive
-        {herd_feels_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "feels herdmate is done!")
+        {herd_feels_process, clean_write, done} ->
+            log_helper:write_log(?MODULE, self(), "feels herdmate is done!")
     end.
 
 %% @doc Helper function to cleanly dispatch a query to the collector herdmate and block until it completes.
@@ -89,7 +139,8 @@ query_collector(FQ) ->
 
     %% wait for completion
     receive
-        {herd_collector_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "collector herdmate is done!")
+        {herd_collector_process, clean_write, done} ->
+            log_helper:write_log(?MODULE, self(), "collector herdmate is done!")
     end.
 
 %% @doc Helper function to cleanly dispatch a query to the morals herdmate and block until it completes.
@@ -100,7 +151,8 @@ query_morals(FQ) ->
 
     %% wait for completion
     receive
-        {herd_morals_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "morals herdmate is done!")
+        {herd_morals_process, clean_write, done} ->
+            log_helper:write_log(?MODULE, self(), "morals herdmate is done!")
     end.
 
 %% @doc Helper function to cleanly dispatch a query to the coder herdmate and block until it completes.
@@ -111,7 +163,8 @@ query_egghead(FQ) ->
 
     %% wait for completion
     receive
-        {herd_egghead_process, clean_write, done} -> log_helper:write_log(?MODULE, self(), "coder herdmate is done!")
+        {herd_egghead_process, clean_write, done} ->
+            log_helper:write_log(?MODULE, self(), "coder herdmate is done!")
     end.
 
 %% @doc Helper function to get the latest query result from the memory herdmate.
@@ -202,7 +255,7 @@ read_memory() ->
 
     %% wait for completion
     receive
-        {herd_memory_process, clean_read, Dump} -> 
+        {herd_memory_process, clean_read, Dump} ->
             log_helper:write_log(?MODULE, self(), "memory herdmate is done!"),
             Dump
     end.
@@ -215,7 +268,7 @@ read_feels() ->
 
     %% wait for completion
     receive
-        {herd_feels_process, clean_read, Dump} -> 
+        {herd_feels_process, clean_read, Dump} ->
             log_helper:write_log(?MODULE, self(), "feels herdmate is done!"),
             Dump
     end.
@@ -228,7 +281,7 @@ read_collector() ->
 
     %% wait for completion
     receive
-        {herd_collector_process, clean_read, Dump} -> 
+        {herd_collector_process, clean_read, Dump} ->
             log_helper:write_log(?MODULE, self(), "collector herdmate is done!"),
             Dump
     end.
@@ -241,7 +294,7 @@ read_morals() ->
 
     %% wait for completion
     receive
-        {herd_morals_process, clean_read, Dump} -> 
+        {herd_morals_process, clean_read, Dump} ->
             log_helper:write_log(?MODULE, self(), "morals herdmate is done!"),
             Dump
     end.
@@ -254,7 +307,7 @@ read_egghead() ->
 
     %% wait for completion
     receive
-        {herd_egghead_process, clean_read, Dump} -> 
+        {herd_egghead_process, clean_read, Dump} ->
             log_helper:write_log(?MODULE, self(), "coder herdmate is done!"),
             Dump
     end.
