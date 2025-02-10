@@ -86,7 +86,7 @@ process(CN) ->
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
             %% chance of reintroducing the setup prompt
-            case rand:uniform() > 0.5 of
+            case rand:uniform() > 0.66 of
                 true ->
                     %% gentle reminder of purpose
                     ssh_helper:exec_in_tmux(CN, setup_query()),

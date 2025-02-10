@@ -1,7 +1,14 @@
 -module(herd_memory).
 
 -export([
-    start/0, process_init/0, dirty_read/0, clean_read/0, dirty_write/1, clean_write/1, summarize/0, awake/0
+    start/0,
+    process_init/0,
+    dirty_read/0,
+    clean_read/0,
+    dirty_write/1,
+    clean_write/1,
+    summarize/0,
+    awake/0
 ]).
 
 %% API
@@ -96,6 +103,15 @@ process(CN) ->
             PID ! {herd_memory_process, dirty_write, done};
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
+            %% chance of reintroducing the setup prompt
+            case rand:uniform() > 0.66 of
+                true ->
+                    %% gentle reminder of purpose
+                    ssh_helper:exec_in_tmux(CN, setup_query()),
+                    ssh_helper:wait_for_prompt(CN);
+                _ ->
+                    done
+            end,
             %% pass user query
             ssh_helper:exec_in_tmux(CN, Query),
             ssh_helper:wait_for_prompt(CN),
