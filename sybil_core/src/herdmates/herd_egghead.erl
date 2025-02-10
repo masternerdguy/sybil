@@ -70,7 +70,6 @@ process(CN) ->
     catch receive
         %% simple check to see if the process is listening
         {PID, awake} ->
-            ssh_helper:wait_for_prompt(CN),
             PID ! {herd_egghead_process, indeed};
         %% perform a quick dump of the current session
         {PID, dirty_read} ->
@@ -105,4 +104,4 @@ setup_query() ->
 
 %% @doc Command to start the model.
 run_cmd() ->
-    "ollama run qwq".
+    "ollama run taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m".

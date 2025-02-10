@@ -88,7 +88,6 @@ process(CN) ->
     catch receive
         %% simple check to see if the process is listening
         {PID, awake} ->
-            ssh_helper:wait_for_prompt(CN),
             PID ! {herd_memory_process, indeed};
         %% perform a quick dump of the current session
         {PID, dirty_read} ->
