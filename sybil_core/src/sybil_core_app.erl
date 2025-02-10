@@ -26,6 +26,9 @@ start(_StartType, _StartArgs) ->
     %% wait for herdmates
     wait_awake(),
 
+    %% flush the buffer
+    log_helper:flush_log(),
+
     %% complete startup
     sybil_core_sup:start_link().
 
@@ -62,34 +65,47 @@ setup_herd() ->
 
 %% @doc Helper function to block until all herdmates are awake.
 wait_awake() ->
-    %% send awake signals
-    herd_memory:awake(),
-    herd_feels:awake(),
-    herd_morals:awake(),
-    herd_egghead:awake(),
-    herd_collector:awake(),
+    %% there is a real chance this could fail for long running initializations, and that is fine
+    catch try
+        io:fwrite("sending wake signals...~n"),
 
-    %% wait for herd_memory
-    receive
-        {herd_memory_process, indeed} -> done
-    end,
+        %% send awake signals
+        herd_memory:awake(),
+        herd_feels:awake(),
+        herd_morals:awake(),
+        herd_egghead:awake(),
+        herd_collector:awake(),
 
-    %% wait for herd_feels
-    receive
-        {herd_feels_process, indeed} -> done
-    end,
+        %% wait for herd_memory
+        receive
+            {herd_memory_process, indeed} -> io:fwrite("got signal from herd_memory!~n")
+        end,
 
-    %% wait for herd_morals
-    receive
-        {herd_morals_process, indeed} -> done
-    end,
+        %% wait for herd_feels
+        receive
+            {herd_feels_process, indeed} -> io:fwrite("got signal from herd_feels!~n")
+        end,
 
-    %% wait for herd_egghead
-    receive
-        {herd_egghead_process, indeed} -> done
-    end,
+        %% wait for herd_morals
+        receive
+            {herd_morals_process, indeed} -> io:fwrite("got signal from herd_morals!~n")
+        end,
 
-    %% wait for herd_collector
-    receive
-        {herd_collector_process, indeed} -> done
+        %% wait for herd_egghead
+        receive
+            {herd_egghead_process, indeed} -> io:fwrite("got signal from herd_egghead!~n")
+        end,
+
+        %% wait for herd_collector
+        receive
+            {herd_collector_process, indeed} -> io:fwrite("got signal from herd_collector!~n")
+        end
+    of
+        %% success!
+        _ -> io:fwrite("got all signals from herdmates!~n")
+    catch
+        %% wait longer
+        _ -> wait_awake();
+        %% wait longer
+        _:_ -> wait_awake()
     end.
