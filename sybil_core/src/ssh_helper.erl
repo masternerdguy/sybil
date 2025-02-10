@@ -64,8 +64,15 @@ exec(Connection, Command) ->
 %% @doc Reads the raw result buffer line by line.
 read(State) ->
     receive
-        M -> 
-            read(State ++ [M])
+        M ->
+            %% make sure this is an ssh message
+            case element(1, M) of
+                %% use message
+                ssh_cm ->
+                    read(State ++ [M]);
+                %% discard message
+                _ -> read(State)
+            end
     after 1000 ->
         State
     end.

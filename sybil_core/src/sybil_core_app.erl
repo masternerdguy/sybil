@@ -76,29 +76,46 @@ wait_awake() ->
         herd_egghead:awake(),
         herd_collector:awake(),
 
+        Timeout = 30000,
+
         %% wait for herd_memory
         receive
             {herd_memory_process, indeed} -> io:fwrite("got signal from herd_memory!~n")
+        after Timeout ->
+            %% try again
+            throw("no wake response for herd_memory yet...")
         end,
 
         %% wait for herd_feels
         receive
             {herd_feels_process, indeed} -> io:fwrite("got signal from herd_feels!~n")
+        after Timeout ->
+            %% try again
+            throw("no wake response for herd_feels yet...")
         end,
 
         %% wait for herd_morals
         receive
             {herd_morals_process, indeed} -> io:fwrite("got signal from herd_morals!~n")
+        after Timeout ->
+            %% try again
+            throw("no wake response for herd_morals yet...")
         end,
 
         %% wait for herd_egghead
         receive
             {herd_egghead_process, indeed} -> io:fwrite("got signal from herd_egghead!~n")
+        after Timeout ->
+            %% try again
+            throw("no wake response for herd_egghead yet...")
         end,
 
         %% wait for herd_collector
         receive
             {herd_collector_process, indeed} -> io:fwrite("got signal from herd_collector!~n")
+        after Timeout ->
+            %% try again
+            throw("no wake response for herd_collector yet...")
         end
     of
         %% success!
