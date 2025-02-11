@@ -54,6 +54,9 @@ process() ->
             %% dispatch to herd_egghead
             query_egghead(FQ),
 
+            %% dispatch to herd_tasker
+            query_tasker(FQ),
+
             %% collect herd_memory result
             MO = latest_memory(),
 
@@ -66,10 +69,14 @@ process() ->
             %% collect herd_egghead result
             CO = latest_egghead(),
 
+            %% collect herd_tasker result
+            EO = latest_tasker(),
+
             %% format for final consumption
             Upward =
                 format_upwards(herd_morals, MOO) ++ format_upwards(herd_feels, FO) ++
-                    format_upwards(herd_egghead, CO) ++ format_upwards(herd_memory, MO),
+                    format_upwards(herd_egghead, CO) ++ format_upwards(herd_tasker, EO) ++
+                    format_upwards(herd_memory, MO),
 
             log_helper:write_log(
                 ?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])
@@ -167,6 +174,18 @@ query_egghead(FQ) ->
             log_helper:write_log(?MODULE, self(), "egghead herdmate is done!")
     end.
 
+%% @doc Helper function to cleanly dispatch a query to the tasker herdmate and block until it completes.
+query_tasker(FQ) ->
+    %% dispatch to herd_tasker
+    herd_tasker:clean_write(FQ),
+    log_helper:write_log(?MODULE, self(), "waiting for tasker herdmate to finish..."),
+
+    %% wait for completion
+    receive
+        {herd_tasker_process, clean_write, done} ->
+            log_helper:write_log(?MODULE, self(), "tasker herdmate is done!")
+    end.
+
 %% @doc Helper function to get the latest query result from the memory herdmate.
 latest_memory() ->
     %% read herd_memory
@@ -247,6 +266,22 @@ latest_egghead() ->
         _ -> lists:nth(2, HX)
     end.
 
+%% @doc Helper function to get the latest query result from the tasker herdmate.
+latest_tasker() ->
+    %% read herd_tasker
+    HM = read_tasker(),
+
+    %% split and reverse to get output sections
+    HX = lists:reverse(string:split(HM, "\n\n>>>", all)),
+
+    %% check length
+    case length(HX) >= 2 of
+        %% no output yet
+        false -> none;
+        %% return last output
+        _ -> lists:nth(2, HX)
+    end.
+
 %% @doc Helper function to read the entire output of the memory herdmate's session.
 read_memory() ->
     %% request clean read of herd_memory
@@ -309,5 +344,18 @@ read_egghead() ->
     receive
         {herd_egghead_process, clean_read, Dump} ->
             log_helper:write_log(?MODULE, self(), "egghead herdmate is done!"),
+            Dump
+    end.
+
+%% @doc Helper function to read the entire output of the tasker herdmate's session.
+read_tasker() ->
+    %% request clean read of herd_tasker
+    herd_tasker:clean_read(),
+    log_helper:write_log(?MODULE, self(), "waiting for tasker herdmate to dump..."),
+
+    %% wait for completion
+    receive
+        {herd_tasker_process, clean_read, Dump} ->
+            log_helper:write_log(?MODULE, self(), "tasker herdmate is done!"),
             Dump
     end.

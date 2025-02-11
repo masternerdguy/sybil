@@ -66,6 +66,10 @@ setup_herd() ->
     herd_egghead:start(),
     sleep(20),
 
+    %% start herd_tasker with a delay
+    herd_tasker:start(),
+    sleep(20),
+
     %% start herd_collector with a delay
     herd_collector:start(),
     sleep(30).
@@ -81,6 +85,7 @@ wait_awake() ->
         herd_feels:awake(),
         herd_morals:awake(),
         herd_egghead:awake(),
+        herd_tasker:awake(),
         herd_collector:awake(),
 
         Timeout = 15000,
@@ -115,6 +120,14 @@ wait_awake() ->
         after Timeout ->
             %% try again
             throw("no wake response for herd_egghead yet...")
+        end,
+
+        %% wait for herd_tasker
+        receive
+            {herd_tasker_process, indeed} -> io:fwrite("got signal from herd_tasker!~n")
+        after Timeout ->
+            %% try again
+            throw("no wake response for herd_tasker yet...")
         end,
 
         %% wait for herd_collector

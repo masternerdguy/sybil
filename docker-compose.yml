@@ -70,6 +70,17 @@ services:
         ipv4_address: 172.20.128.6
     devices:
       - nvidia.com/gpu=all
+  herd-tasker:
+    image: localhost/herdmate
+    env_file:
+      - .env
+    volumes:
+      - ./ollama:/root/.ollama
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.7
+    devices:
+      - nvidia.com/gpu=all
 networks:
   static-network:
     ipam:
