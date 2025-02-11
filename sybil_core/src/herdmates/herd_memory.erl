@@ -110,7 +110,7 @@ process(CN) ->
         %% perform a clean write to the current session
         {PID, clean_write, Query} ->
             %% chance of reintroducing the setup prompt
-            case rand:uniform() > 0.33 of
+            case rand:uniform() > 0.5 of
                 true ->
                     %% gentle reminder of purpose
                     ssh_helper:exec_in_tmux(CN, "a gentle reminder, " ++ setup_query()),
@@ -141,7 +141,7 @@ summarization_query() ->
 setup_query() ->
     "you are tasked with being the memory for a larger entity. " ++
         "you will receive fragments of information and conversation. " ++
-        "you will need to summarize them if asked in a specific format. ".
+        "you may not use anything outside of these fragments. ".
 
 %% @doc Command to start the model.
 run_cmd() ->
