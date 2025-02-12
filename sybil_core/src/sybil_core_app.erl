@@ -41,14 +41,14 @@ start(_StartType, _StartArgs) ->
         {inference_collector_process, query, _} -> done
     end,
 
-    %% complete startup
-    sybil_core_sup:start_link(),
-
     %% flush the buffer
     log_helper:flush_log(),
 
     %% instruct user on next step
-    io:fwrite("system ready! enter 'sybil:chat().' to begin chatting.~n").
+    io:fwrite("system ready! enter 'sybil:chat().' to begin chatting.~n"),
+
+    %% complete startup
+    sybil_core_sup:start_link().
 
 stop(_State) ->
     ok.
