@@ -37,7 +37,10 @@ start(_StartType, _StartArgs) ->
     inference_collector:chat("hello sybil - do you know who you are?"),
 
     %% complete startup
-    sybil_core_sup:start_link().
+    sybil_core_sup:start_link(),
+
+    %% enter chat loop
+    sybil:chat().
 
 stop(_State) ->
     ok.
