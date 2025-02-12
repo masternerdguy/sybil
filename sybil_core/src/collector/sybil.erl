@@ -18,19 +18,13 @@ chat() ->
 
     %% wait for output from collector
     receive
-        {inference_collector_process, query, HCO} ->
-            %% grab just sybil's output without the herdmate outputs
-            Output = string:find(HCO, "\n"),
+        {inference_collector_process, query, Output} ->
+            %% flush any stray messages
+            log_helper:flush_log(),
 
-            case Output of
-                %% something went wrong
-                nomatch ->
-                    chat();
-                _ ->
-                    %% print results
-                    io:fwrite("~n# ~s~n~n", [Output]),
+            %% print results
+            io:fwrite("~n# ~ts~n~n", [Output]),
 
-                    %% get next query
-                    chat()
-            end
+            %% get next query
+            chat()
     end.
