@@ -18,8 +18,8 @@ chat() ->
             %% pass one
             FirstOutput = chat_take(Query),
 
-            %% truncate the first output ends to 256 characters
-            TruncStart = string:substr(FirstOutput, 1, 256),
+            %% truncate the first output's ends
+            TruncStart = string:substr(FirstOutput, 1, 768),
             TruncEnd = reverse_substr(FirstOutput, 1, 256),
 
             %% pass two, including first truncated output
