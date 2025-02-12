@@ -1,6 +1,8 @@
 # Summary
 Sybil is a *prototype* technology demonstrator intended to explore improving chatbot capabilities by drawing inspiration from multiple personality disorder. Essentially, It is hoped that aggregating output from multiple, potentially conflicting, "personalities" might result in a more interesting chatbot. Sybil's namesake is the pseudonym of the famous mental patient who struggled with this very severe disorder.
 
+![Screenshot](sybil.png)
+
 More generally, this code demonstrates a hopefully novel method of stitching ollama shells together and aggregating their output. It could be adapted for many other purposes! You are only limited by your imagination and the nature of the LLMs you choose to stitch together.
 
 # Warning
