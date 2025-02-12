@@ -5,7 +5,7 @@
 %% @doc Convenience function for an ollama-esque chat loop.
 chat() ->
     %% show prompt
-    {ok, Query} = io:read("sybil> "),
+    {ok, Query} = io:get_line("sybil> "),
 
     %% send message to sybil
     inference_collector:chat(Query),
