@@ -18,12 +18,11 @@ chat() ->
             %% pass one
             FirstOutput = chat_take(Query),
 
-            %% truncate the first output's ends
-            TruncStart = string:substr(FirstOutput, 1, 768),
-            TruncEnd = reverse_substr(FirstOutput, 1, 256),
+            %% truncate the first output's end
+            TruncEnd = reverse_substr(FirstOutput, 1, 512),
 
             %% pass two, including first truncated output
-            Output = chat_take(Query ++ io_lib:format(" | some intermediate thoughts: ~s ~s | ", [TruncEnd, TruncStart])),
+            Output = chat_take(Query ++ io_lib:format(" | some intermediate thoughts from the last cycle: ~s | ", [TruncEnd])),
 
             %% print results
             io:fwrite("~n# ~ts~n~n", [Output]),
