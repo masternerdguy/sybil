@@ -6,7 +6,14 @@
 
 %% @doc Standardized logging function.
 write_log(Module, PID, Message) ->
-    io:fwrite("~p | [~p] <~p> | ~s~n", [calendar:now_to_universal_time(os:timestamp()), Module, PID, Message]).
+    %% buld log string
+    LS = io_lib:fwrite("~p | [~p] <~p> | ~s~n", [calendar:now_to_universal_time(os:timestamp()), Module, PID, Message]),
+
+    %% write to standard out
+    io:fwrite(LS),
+    
+    %% write to log file
+    file:write_file("sybil.log", LS, [append]).
 
 %% @doc Convenience function to flush the current (shell) buffer to logging.
 flush_log() ->
