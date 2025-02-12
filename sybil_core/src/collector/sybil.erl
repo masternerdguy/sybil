@@ -16,10 +16,10 @@ chat() ->
         %% we got something
         _ ->
             %% pass one
-            chat_take(Query),
+            FirstOutput = chat_take(Query),
 
-            %% pass two
-            Output = chat_take(Query),
+            %% pass two, including first output
+            Output = chat_take(Query ++ FirstOutput),
 
             %% print results
             io:fwrite("~n# ~ts~n~n", [Output]),
