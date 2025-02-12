@@ -18,8 +18,11 @@ chat() ->
             %% pass one
             FirstOutput = chat_take(Query),
 
-            %% pass two, including first output
-            Output = chat_take(Query ++ FirstOutput),
+            %% truncate the first output to 128 characters
+            Trunc = string:substr(FirstOutput, 1, 128),
+
+            %% pass two, including first truncated output
+            Output = chat_take(Query ++ io_lib:format(" | ~s | ", [Trunc])),
 
             %% print results
             io:fwrite("~n# ~ts~n~n", [Output]),
