@@ -2,6 +2,8 @@
 
 -export([chat/0]).
 
+%% API
+
 %% @doc Convenience function for an ollama-esque chat loop.
 chat() ->
     %% show prompt
@@ -11,10 +13,27 @@ chat() ->
         %% nothing provided - exit prompt
         server_no_data ->
             io:fwrite("no data! exiting chat session.~n");
-        %% send message to sybil
+        %% we got something
         _ ->
-            inference_collector:chat(Query)
-    end,
+            %% pass one
+            chat_take(Query),
+
+            %% pass two
+            Output = chat_take(Query),
+
+            %% print results
+            io:fwrite("~n# ~ts~n~n", [Output]),
+
+            %% get next query
+            chat()
+    end.
+
+%% Internal API
+
+%% @doc Helper function to send query then block while waiting for output.
+chat_take(Query) ->
+    %% send query to sybil
+    inference_collector:chat(Query),
 
     %% wait for output from collector
     receive
@@ -22,9 +41,6 @@ chat() ->
             %% flush any stray messages
             log_helper:flush_log(),
 
-            %% print results
-            io:fwrite("~n# ~ts~n~n", [Output]),
-
-            %% get next query
-            chat()
+            %% return result
+            Output
     end.

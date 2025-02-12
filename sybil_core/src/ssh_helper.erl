@@ -88,8 +88,11 @@ replace_unsafe(String) ->
     %% replace line feed with space
     NL = replace_all(NC, "\n", " "),
 
+    %% remove elipses ollama inserts
+    NE = replace_all(NL, "...", " "),
+
     %% return result
-    NL.
+    NE.
 
 %% @doc Helper function to replace characters in a list.
 replace_all(String, Find, Replace) ->
