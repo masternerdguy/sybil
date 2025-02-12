@@ -61,3 +61,8 @@ Sybil is *not fast at all*, although how slow will depend on your hardware. Obvi
 Sybil's code is permissively licensed under the usual MIT License. Note that each ollama model has its own license.
 
 # Models Used
+* `herd_collector` - taozhiyuai/llama-3-8b-lexi-uncensored:q8_0
+* `herd_egghead` - taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m
+* `herd_feels` - samantha-mistral
+* `herd_morals` - taozhiyuai/llama-3-8b-lexi-uncensored:q4_k_m
+* `herd_tasker` - tulu3
