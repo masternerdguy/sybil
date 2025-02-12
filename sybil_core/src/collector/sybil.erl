@@ -28,7 +28,7 @@ chat() ->
                     chat();
                 _ ->
                     %% print results
-                    io:fwrite("sybil> ~s~n~n# ~s~n", [Query, Output]),
+                    io:fwrite("sybil> ~s~n~n# ~s~n~n", [Query, Output]),
 
                     %% get next query
                     chat()
