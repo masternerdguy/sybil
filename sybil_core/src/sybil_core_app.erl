@@ -39,6 +39,9 @@ start(_StartType, _StartArgs) ->
     %% complete startup
     sybil_core_sup:start_link(),
 
+    %% flush the buffer
+    log_helper:flush_log(),
+
     %% enter chat loop
     sybil:chat().
 
