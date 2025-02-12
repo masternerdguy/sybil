@@ -17,7 +17,7 @@ I can't believe I actually have to emphasize the above, but sadly I do. You know
 # Architecture
 Sybil is basically a just collection of ollama shells running in logically isolated podman containers with input and output between these sessions mediated by an Erlang application. These containers are referred to as "herdmates" following the llama analogy.
 
-diagram todo
+![Screenshot](architecture-diagram.png)
 
 I've done a lot of experimentation with the above architecture and I must say there are plenty of fascinating way this cat could be skinned - in no way do I think I've found the best solution. In fact, I would love to see someone smarter than me come up with a better one!
 
