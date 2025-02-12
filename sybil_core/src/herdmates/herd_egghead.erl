@@ -51,7 +51,7 @@ process_init() ->
 
     %% wait for ollama to initialize
     ssh_helper:wait_for_prompt(CN),
-    log_helper:write_log(?MODULE, self(), "Ready for system prmopt."),
+    log_helper:write_log(?MODULE, self(), "Ready for system prompt."),
 
     %% send system prompt
     ssh_helper:exec_in_tmux(CN, system_prompt()),
