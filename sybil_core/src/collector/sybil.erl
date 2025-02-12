@@ -5,10 +5,16 @@
 %% @doc Convenience function for an ollama-esque chat loop.
 chat() ->
     %% show prompt
-    {ok, Query} = io:get_line("sybil> "),
+    Query = io:get_line("sybil> "),
 
-    %% send message to sybil
-    inference_collector:chat(Query),
+    case Query of
+        %% nothing provided - exit prompt
+        server_no_data ->
+            io:fwrite("no data! exiting chat session.~n");
+        %% send message to sybil
+        _ ->
+            inference_collector:chat(Query)
+    end,
 
     %% wait for output from collector
     receive
