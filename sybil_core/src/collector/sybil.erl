@@ -23,7 +23,7 @@ chat() ->
             TruncEnd = reverse_substr(FirstOutput, 1, 128),
 
             %% pass two, including first truncated output
-            Output = chat_take(Query ++ io_lib:format(" | sybil's intermediate thoughts: ~s | ", [TruncStart ++ TruncEnd])),
+            Output = chat_take(Query ++ io_lib:format(" | some intermediate thoughts: ~s | ", [TruncEnd ++ TruncStart])),
 
             %% print results
             io:fwrite("~n# ~ts~n~n", [Output]),
