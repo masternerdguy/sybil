@@ -36,6 +36,11 @@ start(_StartType, _StartArgs) ->
     io:fwrite("asking sybil to awake... then you can chat!~n"),
     inference_collector:chat("hello sybil - do you know who you are?"),
 
+    %% wait for result
+    receive
+        {inference_collector_process, query, _} -> done
+    end,
+
     %% complete startup
     sybil_core_sup:start_link(),
 
