@@ -15,7 +15,7 @@ In general, however, you should always think critically about any advice someone
 I can't believe I actually have to emphasize the above, but sadly I do. You know, if those who actually want a true AGI system were to get their wish all of these caveats would be amplified a thousand fold. After all, it is reasonable to expect that a more intelligent system would be better at hurting or misleading you - we've made plenty of science fiction movies to that effect!
 
 # Architecture
-Sybil is basically a just collection of ollama shells running in logically isolated podman containers with input and output between these sessions mediated by an Erlang application. These containers are referred to as "herdmates" following the llama analogy.
+Sybil is basically just a collection of ollama shells running in logically isolated podman containers with input and output between these sessions mediated by an Erlang application. These containers are referred to as "herdmates" following the llama analogy.
 
 ![Screenshot](architecture-diagram.png)
 
@@ -43,6 +43,8 @@ Note that you can also directly connect to a herdmate via SSH - in fact, this is
 
 # Performance
 Sybil is *not fast at all*, although how slow will depend on your hardware. Obviously, having to feed and backfeed queries through several models is going to take longer than usually expected. With that said, this system has been configured to utilize GPU-acceleration via podman containers which is orders of magnitude faster than CPU inference. Although easiest to configure on Linux, it should be noted that WSL does support exposing GPU resources to podman!
+
+![Screenshot](prompt-example.png)
 
 # Areas for Improvement
 * As a prototype, Sybil does not follow all Erlang/OTP design principles - for example, herdmates only have a start() function and no supervisor. Adding these would increase the resilience of the system. There are also no type `spec` hints.
