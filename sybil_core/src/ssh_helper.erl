@@ -91,8 +91,11 @@ replace_unsafe(String) ->
     %% remove elipses ollama inserts
     NE = replace_all(NL, "...", " "),
 
+    %% replace triple spaces with single space
+    NT = replace_all(NE, "   ", " "),
+
     %% return result
-    NE.
+    NT.
 
 %% @doc Helper function to replace characters in a list.
 replace_all(String, Find, Replace) ->
