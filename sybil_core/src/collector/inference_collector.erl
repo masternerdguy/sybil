@@ -72,11 +72,21 @@ process() ->
             %% collect herd_tasker result
             EO = latest_tasker(),
 
+            %% aggregate upward strings in a list
+            UpwardList = [
+                format_upwards(herd_morals, MOO),
+                format_upwards(herd_feels, FO),
+                format_upwards(herd_egghead, CO),
+                format_upwards(herd_tasker, EO),
+                format_upwards(herd_memory, MO)
+            ],
+
+            %% shuffle the upward list
+            ShuffledList = shuffle(UpwardList),
+
             %% format for final consumption
             Upward =
-                format_upwards(herd_morals, MOO) ++ format_upwards(herd_feels, FO) ++
-                    format_upwards(herd_egghead, CO) ++ format_upwards(herd_tasker, EO) ++
-                    format_upwards(herd_memory, MO),
+                string:join(ShuffledList, " "),
 
             log_helper:write_log(
                 ?MODULE, self(), io_lib:format("herdmates input collected | ~s", [Upward])
@@ -359,3 +369,30 @@ read_tasker() ->
             log_helper:write_log(?MODULE, self(), "tasker herdmate is done!"),
             Dump
     end.
+
+%% @doc Helper function to shuffle a list.
+shuffle(List) ->
+    %% Determine the log n portion then randomize the list.
+    randomize(round(math:log(length(List)) + 0.5), List).
+
+randomize(1, List) ->
+    randomize(List);
+randomize(T, List) ->
+    lists:foldl(
+        fun(_E, Acc) ->
+            randomize(Acc)
+        end,
+        randomize(List),
+        lists:seq(1, (T - 1))
+    ).
+
+randomize(List) ->
+    D = lists:map(
+        fun(A) ->
+            {rand:uniform(), A}
+        end,
+        List
+    ),
+
+    {_, D1} = lists:unzip(lists:keysort(1, D)),
+    D1.
