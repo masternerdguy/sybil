@@ -47,8 +47,8 @@ start(_StartType, _StartArgs) ->
     %% flush the buffer
     log_helper:flush_log(),
 
-    %% enter chat loop
-    sybil:chat().
+    %% instruct user on next step
+    io:fwrite("system ready! enter 'sybil:chat().' to begin chatting.~n").
 
 stop(_State) ->
     ok.
