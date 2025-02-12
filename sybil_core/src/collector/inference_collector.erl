@@ -97,7 +97,7 @@ process() ->
 
             %% collect final herd_collector result
             HCO = latest_collector(),
-            log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~s", [HCO])),
+            log_helper:write_log(?MODULE, self(), io_lib:format("final output | ~n~s", [HCO])),
 
             %% back propagate the result to herd_memory
             log_helper:write_log(
